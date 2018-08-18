@@ -4,75 +4,89 @@ services:
 
     node:
         build:
-            context: ./node
-            args:
-                - NODE_VERSION=latest
-                - PROJECT_PATH=/opt/app/
-                - NODE_ENV=production
-                - YARN=false
+          context: ./node
+        environment: 
+          - NODE_ENV=${NODE_ENV}
         volumes:
-            - ../:/opt/app
-        entrypoint: run-nodock "node index.js"
+          - ${APPLICATION}:/home/node/app
+        expose:
+          - ${NODE_PORT}
+        command: "npm start"
         tty: true
+        networks:
+          - frontend
+          - backend
+        links:
+          - mongo
 
     mysql:
         build:
             context: ./mysql
             args:
-                - MYSQL_DATABASE=default_database
-                - MYSQL_USER=default_user
-                - MYSQL_PASSWORD=secret
-                - MYSQL_ROOT_PASSWORD=root
+                - MYSQL_DATABASE=${MYSQL_DATABASE}
+                - MYSQL_USER=${MYSQL_USER}
+                - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+                - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
         volumes:
-            - ./data/mysql/:/var/lib/mysql
+            - ${DATA_SAVE_PATH}/mysql/:/var/lib/mysql
         expose:
-            - "3306"
+            - ${MYSQL_PORT}
 
     postgresql:
         build:
             context: ./postgresql
             args:
-                - POSTGRES_USER=default_user
-                - POSTGRES_PASSWORD=secret
-                - POSTGRES_DB=default_db
+                - POSTGRES_USER=${POSTGRES_USER}
+                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                - POSTGRES_DB=${POSTGRES_DB}
         volumes:
-            - ./data/postgresql/:/var/lib/postgresql
+            - ${DATA_SAVE_PATH}/postgresql/:/var/lib/postgresql
         expose:
-            - "5432"
+            - ${POSTGRES_PORT}
 
     mongo:
         build: ./mongo
         expose:
-            - "27017"
+            - ${MONGODB_PORT}
         volumes:
-            - ./data/mongo/:/var/lib/mongodb
+            - ${DATA_SAVE_PATH}/mongo/:/var/lib/mongodb
+        networks:
+            - backend
 
     nginx:
         build:
             context: ./nginx
             args:
-                - WEB_REVERSE_PROXY_PORT=8000
-                - WEB_SSL=false
-                - SELF_SIGNED=false
+                - WEB_REVERSE_PROXY_PORT=${WEB_REVERSE_PROXY_PORT}
+                - WEB_SSL=${WEB_SSL}
+                - SELF_SIGNED=${SELF_SIGNED}
                 - NO_DEFAULT=false
         volumes:
-            - ./data/logs/nginx/:/var/log/nginx
+            - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+            - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
             - ./certbot/certs/:/var/certs
         ports:
-            - "80:80"
-            - "443:443"
+            - ${NGINX_HOST_HTTP_PORT}
+            - ${NGINX_HOST_HTTPS_PORT}
+        environment:
+            VIRTUAL_HOST: ${MAIN_DOMAIN}
         tty: true
+        networks:
+            - frontend
+            - backend
+        depends_on: 
+            - node
 
     apache:
         build:
             context: ./apache
             args:
-                - WEB_REVERSE_PROXY_PORT=8000
-                - WEB_SSL=false
-                - SELF_SIGNED=false
+                - WEB_REVERSE_PROXY_PORT=${WEB_REVERSE_PROXY_PORT}
+                - WEB_SSL=${WEB_SSL}
+                - SELF_SIGNED=${SELF_SIGNED}
                 - NO_DEFAULT=false
         volumes:
-            - ./data/logs/apache/:/usr/local/apache2/logs
+            - ${DATA_SAVE_PATH}/logs/apache/:/usr/local/apache2/logs
             - ./certbot/certs/:/var/certs
         ports:
             - "80:80"
@@ -135,3 +149,16 @@ services:
             - "29015"
         ports:
             - "28080:8080"
+
+networks:
+  frontend:
+    external:
+       name: nginxproxy_default
+  backend:
+    driver: "bridge"
+
+volumes:
+  mongo:
+    driver: "local"
+  node: 
+    driver: "local"

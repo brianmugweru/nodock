@@ -1,36 +1,38 @@
-FROM phusion/baseimage:0.9.19
+FROM node:8
 
 RUN apt-get update &&\
     apt-get install -y npm &&\
-    npm install -g n
+    npm install -g n && \
+    npm install -g nodemon
 
-ARG NODE_ENV=production
-ARG NODE_VERSION=latest
-ARG PROJECT_PATH=/opt/app/
-ARG YARN=false
+WORKDIR /home/node/app
 
-ENV YARN=$YARN
-ENV PROJECT_PATH=$PROJECT_PATH
-ENV NODE_ENV=$NODE_ENV
+#ARG NODE_ENV=production
+#ARG NODE_VERSION=latest
+#ARG PROJECT_PATH=/home/node/app/
+#ARG YARN=false
+
+#ENV YARN=$YARN
+#ENV PROJECT_PATH=$PROJECT_PATH
+#ENV NODE_ENV=$NODE_ENV
 
 # Add
-RUN groupadd -r www-app &&\
-    useradd -r -g www-app www-app
+#RUN groupadd -r www-app &&\
+#    useradd -r -g www-app www-app
 
-RUN mkdir -p /home/www-app &&\
-    chmod 777 /home/www-app -R
+#RUN mkdir -p /home/www-app &&\
+#    chmod 777 /home/www-app -R
 
 # Install the specified NODE_VERSION or grab latest
-RUN n "$NODE_VERSION"
+#RUN n "$NODE_VERSION"
 
 # Install Yarn
 
-RUN if [ ${YARN} = true ]; then \
-    npm install -g yarn \
-;fi
+#RUN if [ ${YARN} = true ]; then \
+#    npm install -g yarn \
+#;fi
 
-COPY scripts/run-nodock.sh /usr/bin/run-nodock
+#COPY scripts/run-nodock.sh /usr/bin/run-nodock
 
-RUN chmod 700 /usr/bin/run-nodock
+#RUN chmod 700 /usr/bin/run-nodock
 
-WORKDIR /opt/app
