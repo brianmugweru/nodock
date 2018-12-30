@@ -7,6 +7,11 @@ services:
           context: ./node
         environment: 
           - NODE_ENV=${NODE_ENV}
+          - MONGO_USERNAME=${MONGODB_USER}
+          - MONGO_PASSWORD=${MONGODB_PASSWORD}
+          - MONGO_HOSTNAME=mongo
+          - MONGO_PORT=27017
+          - MONGO_DATABASE_NAME=${MONGODB_DATABASE}
         volumes:
           - ${APP_CODE}:${APP_CONTAINER}
         expose:
@@ -52,6 +57,10 @@ services:
             - ${DATA_SAVE_PATH}/mongo/:/var/lib/mongodb
         networks:
             - backend
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+            - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
 
     nginx:
         build:
