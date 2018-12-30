@@ -40,5 +40,3 @@ jspm_packages
 data
 ./docker-compose.override.yml
 .env
-
-cliffhanger.txt

@@ -1,0 +1,2 @@
+stuck with port 8000 for node js template
+Mongo db user and password still not working
