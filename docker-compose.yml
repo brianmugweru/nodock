@@ -60,7 +60,11 @@ services:
         environment:
             - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
             - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
-            - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
+        healthcheck:
+            test: echo 'db.stats().ok' | mongo localhost:27017/example-database --quiet
+            interval: 5s
+            timeout: 4s
+            retries: 3
 
     nginx:
         build:
