@@ -8,7 +8,7 @@ services:
         environment: 
           - NODE_ENV=${NODE_ENV}
         volumes:
-          - ${APPLICATION}:/home/node/app
+          - ${APP_CODE}:${APP_CONTAINER}
         expose:
           - ${NODE_PORT}
         command: "npm start"

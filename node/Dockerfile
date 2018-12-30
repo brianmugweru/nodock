@@ -1,38 +1,29 @@
 FROM node:8
 
-RUN apt-get update &&\
-    apt-get install -y npm &&\
-    npm install -g n && \
-    npm install -g nodemon
+ARG NODE_ENV=production
+ENV NODE_ENV $NODE_ENV
+
+ARG NODE_USE_YARN=false
+ENV NODE_USE_YARN $NODE_USE_YARN
+
+ARG NODE_USE_NPM=true
+ENV NODE_USE_NPM $NODE_USE_NPM
+
+ARG NODE_TEST_ENVIRONMENT_MOCHA=true
+ENV NODE_TEST_ENVIRONMENT_MOCHA $NODE_TEST_ENVIRONMENT_MOCHA
+
+ARG NODE_ISTANBUL_TEST_COVERAGE=true
+ENV NODE_ISTANBUL_TEST_COVERAGE $NODE_ISTANBUL_TEST_COVERAGE 
+
+ARG NODE_INSTALL_IMAGE_MAGICK=false
+ENV NODE_INSTALL_IMAGE_MAGICK $NODE_INSTALL_IMAGE_MAGICK
+
+RUN apt-get update
+
+COPY ./scripts/custom-installations.sh /usr/bin/
+
+RUN chmod 700 /usr/bin/custom-installations.sh
+
+RUN /usr/bin/custom-installations.sh
 
 WORKDIR /home/node/app
-
-#ARG NODE_ENV=production
-#ARG NODE_VERSION=latest
-#ARG PROJECT_PATH=/home/node/app/
-#ARG YARN=false
-
-#ENV YARN=$YARN
-#ENV PROJECT_PATH=$PROJECT_PATH
-#ENV NODE_ENV=$NODE_ENV
-
-# Add
-#RUN groupadd -r www-app &&\
-#    useradd -r -g www-app www-app
-
-#RUN mkdir -p /home/www-app &&\
-#    chmod 777 /home/www-app -R
-
-# Install the specified NODE_VERSION or grab latest
-#RUN n "$NODE_VERSION"
-
-# Install Yarn
-
-#RUN if [ ${YARN} = true ]; then \
-#    npm install -g yarn \
-#;fi
-
-#COPY scripts/run-nodock.sh /usr/bin/run-nodock
-
-#RUN chmod 700 /usr/bin/run-nodock
-
