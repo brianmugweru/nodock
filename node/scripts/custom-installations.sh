@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [[ $NODE_ENV = development ]]; then 
+    npm i -g nodemon
+fi
+
 if [[ $NODE_TEST_ENVIRONMENT_MOCHA = true ]]; then
     npm i -g mocha;
 fi
